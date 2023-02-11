@@ -1,4 +1,4 @@
-;;; unmodified-buffer-mode.el --- Auto revert modified buffers on window change  -*- lexical-binding: t; -*-
+;;; unmodified-buffer-mode.el --- Auto revert modified buffers on window change -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023 Karim Aziiev <karim.aziiev@gmail.com>
 
@@ -45,9 +45,9 @@
             "^Diff finished \(no differences\)\."
             (point-max) 'noerror) t))))
 
+
 (defun unmodified-buffer-mode-check-buffers (&rest _)
   "Unset modified flag for buffers which are identical to the file on disk."
-  (interactive)
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (and buffer-file-name (buffer-modified-p))
@@ -61,11 +61,15 @@
   "Revert buffers which are identical to the file on disk on window change."
   :group 'convenience
   :global t
-  (remove-hook 'window-buffer-change-functions 'maybe-unset-buffer-modified)
-  (remove-hook 'window-selection-change-functions 'maybe-unset-buffer-modified)
+  (remove-hook 'window-buffer-change-functions
+               #'unmodified-buffer-mode-check-buffers)
+  (remove-hook 'window-selection-change-functions
+               #'unmodified-buffer-mode-check-buffers)
   (when unmodified-buffer-mode
-    (add-hook 'window-buffer-change-functions 'maybe-unset-buffer-modified)
-    (add-hook 'window-selection-change-functions 'maybe-unset-buffer-modified)))
+    (add-hook 'window-buffer-change-functions
+              #'unmodified-buffer-mode-check-buffers)
+    (add-hook 'window-selection-change-functions
+              #'unmodified-buffer-mode-check-buffers)))
 
 (provide 'unmodified-buffer-mode)
 ;;; unmodified-buffer-mode.el ends here
