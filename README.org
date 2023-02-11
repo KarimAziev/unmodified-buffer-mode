@@ -1,0 +1,32 @@
+* unmodified-buffer-mode
+
+Global mode that revert modified buffers state which are identical to the file on disk on window change.
+
+** Installation
+
+- Emacs >= 24.1 is required.
+- diff
+
+*** Manual
+
+Download the source code and put it wherever you like, e.g. into =~/.emacs.d/unmodified-buffer-mode/=
+
+#+begin_src shell :eval no
+git clone https://github.com/KarimAziev/unmodified-buffer-mode.git ~/.emacs.d/unmodified-buffer-mode/
+#+end_src
+
+Add the downloaded directory to the load path:
+
+#+begin_src elisp :eval no
+(add-to-list 'load-path "~/.emacs.d/unmodified-buffer-mode/")
+(require 'unmodified-buffer-mode)
+#+end_src
+
+#+begin_src elisp :eval no
+(use-package unmodified-buffer-mode
+  :straight (unmodified-buffer-mode
+             :repo "KarimAziev/unmodified-buffer-mode"
+             :type git
+             :host github)
+  :hook (after-init . unmodified-buffer-mode))
+#+end_src
