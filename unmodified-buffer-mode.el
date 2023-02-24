@@ -6,7 +6,7 @@
 ;; URL: https://github.com/KarimAziev/unmodified-buffer-mode
 ;; Version: 0.1.0
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.4"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -34,7 +34,13 @@
   :type 'boolean
   :group 'convenience)
 
+(defcustom unmodified-buffer-mode-debounce-delay 1
+  "How many seconds to wait before checking buffers modified status."
+  :type 'interger
+  :group 'convenience)
+
 (require 'diff)
+
 
 (defun unmodified-buffer-mode-current-buffer-matches-file-p ()
   "Return t if the current buffer is identical to its associated file."
@@ -56,20 +62,31 @@
             (message "unmodified-buffer-mode: reverting %s" buf))
           (set-buffer-modified-p nil))))))
 
+(defvar unmodified-buffer-mode-timer nil)
+
+(defun unmodified-buffer-mode-check-buffers-debounced (&rest _)
+  "Unset modified flag for buffers which are identical to the file on disk."
+  (when (timerp unmodified-buffer-mode-timer)
+    (cancel-timer unmodified-buffer-mode-timer))
+  (setq unmodified-buffer-mode-timer (run-with-timer
+                                      unmodified-buffer-mode-debounce-delay
+                                      nil
+                                      #'unmodified-buffer-mode-check-buffers)))
+
 ;;;###autoload
 (define-minor-mode unmodified-buffer-mode
   "Revert buffers which are identical to the file on disk on window change."
   :group 'convenience
   :global t
-  (remove-hook 'window-buffer-change-functions
-               #'unmodified-buffer-mode-check-buffers)
-  (remove-hook 'window-selection-change-functions
-               #'unmodified-buffer-mode-check-buffers)
+  (advice-remove 'save-buffers-kill-emacs
+                 #'unmodified-buffer-mode-check-buffers)
+  (advice-remove 'save-some-buffers
+                 #'unmodified-buffer-mode-check-buffers)
   (when unmodified-buffer-mode
-    (add-hook 'window-buffer-change-functions
-              #'unmodified-buffer-mode-check-buffers)
-    (add-hook 'window-selection-change-functions
-              #'unmodified-buffer-mode-check-buffers)))
+    (advice-add 'save-buffers-kill-emacs :before
+                #'unmodified-buffer-mode-check-buffers)
+    (advice-add 'save-some-buffers :before
+                #'unmodified-buffer-mode-check-buffers)))
 
 (provide 'unmodified-buffer-mode)
 ;;; unmodified-buffer-mode.el ends here
