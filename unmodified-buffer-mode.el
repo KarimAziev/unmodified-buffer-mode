@@ -43,9 +43,9 @@
 
 
 (defun unmodified-buffer-mode-current-buffer-matches-file-p ()
-	"Return t if the current buffer is identical to its associated file."
-	(when (and buffer-file-name
-						 (file-exists-p buffer-file-name))
+  "Return t if the current buffer is identical to its associated file."
+  (when (and buffer-file-name
+             (file-exists-p buffer-file-name))
     (diff-no-select buffer-file-name (current-buffer) nil 'noasync)
     (with-current-buffer "*Diff*"
       (and (search-forward-regexp
@@ -73,7 +73,6 @@
                                       unmodified-buffer-mode-debounce-delay
                                       nil
                                       #'unmodified-buffer-mode-check-buffers)))
-
 ;;;###autoload
 (define-minor-mode unmodified-buffer-mode
   "Revert buffers which are identical to the file on disk on window change."
