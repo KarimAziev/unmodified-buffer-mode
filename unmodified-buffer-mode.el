@@ -36,7 +36,7 @@
 
 (defcustom unmodified-buffer-mode-debounce-delay 1
   "How many seconds to wait before checking buffers modified status."
-  :type 'interger
+  :type 'integer
   :group 'convenience)
 
 (require 'diff)
