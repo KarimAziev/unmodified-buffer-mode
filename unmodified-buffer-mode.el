@@ -49,12 +49,13 @@
     (diff-no-select buffer-file-name (current-buffer) nil 'noasync)
     (with-current-buffer "*Diff*"
       (and (search-forward-regexp
-            "^Diff finished \(no differences\)\."
-            (point-max) 'noerror) t))))
+            "^Diff finished (no differences)\\."
+            (point-max) 'noerror)
+           t))))
 
 
 (defun unmodified-buffer-mode-check-buffers (&rest _)
-  "Unset modified flag for buffers which are identical to the file on disk."
+  "Check all buffers and revert those modified but matching their associated files."
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (and buffer-file-name (buffer-modified-p))
@@ -66,7 +67,7 @@
 (defvar unmodified-buffer-mode-timer nil)
 
 (defun unmodified-buffer-mode-check-buffers-debounced (&rest _)
-  "Unset modified flag for buffers which are identical to the file on disk."
+  "Debounce and schedule a check for unmodified buffers."
   (when (timerp unmodified-buffer-mode-timer)
     (cancel-timer unmodified-buffer-mode-timer))
   (setq unmodified-buffer-mode-timer (run-with-timer
